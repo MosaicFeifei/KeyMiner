@@ -18,7 +18,7 @@ public class summarizeGraph {
 
     private HashMap<String, HashSet<Neighbor>> summarize = new HashMap<>();
     private HashMap<String, Integer> instanceCount = new HashMap<>();
-    private HashMap<String, Integer> alreadyVisited = new HashMap<>();
+    //private HashMap<String, Integer> alreadyVisited = new HashMap<>();
 
     private HashMap<String,HashSet<candidateKey>> CandidateKeys=new HashMap<>();
 
@@ -27,11 +27,11 @@ public class summarizeGraph {
     //public HashMap<String, ArrayList<String>> superTypes = new HashMap<String, ArrayList<String>>();
 
 
-    public summarizeGraph(DBPediaDataGraph dataGraph, double minimumCoverage)
+    public summarizeGraph(DBPediaDataGraph dataGraph, double minimumCoverage, String keySavePath)
     {
         this.dataGraph=dataGraph;
         doSummarization();
-        saveData("C:\\Users\\zahra\\Desktop\\ttttt.txt",minimumCoverage);
+        saveData(keySavePath,minimumCoverage);
 
     }
 
@@ -45,7 +45,7 @@ public class summarizeGraph {
         for (DataNode node : dataGraph.getDataGraph().vertexSet())
         {
 
-            alreadyVisited.clear();
+            //alreadyVisited.clear();
             for (String sourceType : node.getTypes()) {
                 if (!instanceCount.containsKey(sourceType))
                     instanceCount.put(sourceType, 1);
@@ -62,14 +62,14 @@ public class summarizeGraph {
                 if(dest.getNodeType()== NodeType.Literal)
                 {
                     for (String sourceType : node.getTypes()) {
-                        refineSummarizeGraph(node, sourceType, "*", edge.getLabel());
+                        refineSummarizeGraph(node.getNodeName().hashCode(),sourceType, "*", edge.getLabel());
                     }
                 }
                 else if(dest.getNodeType()== NodeType.Entity)
                 {
                     for (String sourceType : node.getTypes()) {
                         for (String destType : dest.getTypes()) {
-                            refineSummarizeGraph(node, sourceType, destType, edge.getLabel());
+                            refineSummarizeGraph(node.getNodeName().hashCode(), sourceType, destType, edge.getLabel());
                         }
                     }
                 }
@@ -77,32 +77,36 @@ public class summarizeGraph {
         }
     }
 
-    private void refineSummarizeGraph(DataNode source, String sourceType, String destType,
-                                      String ont) {
-        if (!summarize.containsKey(sourceType)) { // Key not exist in the graph
-            addNewNeighbor(sourceType, destType, ont);
+    private void refineSummarizeGraph(int sourceHashCode, String sourceType, String destType, String ont) {
+
+        if (!summarize.containsKey(sourceType)) { // Key doesn't exist in the graph
+            addNewNeighbor(sourceHashCode, sourceType, destType, ont);
         } else {
             Neighbor neighbor = findNeighbor(summarize.get(sourceType), ont, destType);
-            if (neighbor == null) {// the key exist in the graph but there is no such a neighbor
-                addNewNeighbor(sourceType, destType, ont);
+            if (neighbor == null) {// the key exists in the graph but there is no such a neighbor
+                addNewNeighbor(sourceHashCode, sourceType, destType, ont);
             }
-            else if (!alreadyVisited.containsKey(ont + destType)) {
-                int id = neighbor.increment(String.valueOf(source.getNodeName().hashCode()));
-                alreadyVisited.put(ont + destType, id);
+            else
+            {
+                neighbor.increment(sourceHashCode);
             }
+            //else if (!alreadyVisited.containsKey(ont + destType)) {
+            //    int id = neighbor.increment(String.valueOf(source.getNodeName().hashCode()));
+            //    alreadyVisited.put(ont + destType, id);
+            //}
             //else if (neighbor != null && alreadyVisited.containsKey(ont + destType)) {
             // neighbor.incrementInstance(alreadyVisited.get(ont + destType));
             //}
         }
     }
 
-    private void addNewNeighbor(String sourceType, String destType, String ont) {
+    private void addNewNeighbor(int sourceHashCode, String sourceType, String destType, String ont) {
         Neighbor temp = new Neighbor(ont, destType);
-        int id = temp.increment("");
+        temp.increment(sourceHashCode);
         if (!summarize.containsKey(sourceType))
             summarize.put(sourceType, new HashSet<Neighbor>());
         summarize.get(sourceType).add(temp);
-        alreadyVisited.put(ont + destType, id);
+        //alreadyVisited.put(ont + destType, id);
     }
 
     private Neighbor findNeighbor(HashSet<Neighbor> input, String ont, String type) {
@@ -173,8 +177,8 @@ public class summarizeGraph {
 
         private String type;
         private String ontology;
-        private String signiture;
-        private HashSet<String> sources=new HashSet<>();
+        //private String signiture;
+        private HashSet<Integer> sources=new HashSet<>();
         private int count=0;
         //private int instanceCount=0;
         //private HashMap<Integer, Integer> instances=new HashMap<Integer, Integer>();
@@ -183,7 +187,7 @@ public class summarizeGraph {
         {
             this.type=type;
             this.ontology=ont;
-            signiture=type+ont;
+            //signiture=type+ont;
         }
 
         public String getOnt()
@@ -196,16 +200,13 @@ public class summarizeGraph {
             return type;
         }
 
-        public String getSigniture()
-        {
-            return signiture;
-        }
+        //public String getSigniture(){return signiture;}
 
-        public int increment(String source)
+        public int increment(int sourceHashCode)
         {
-            if(!sources.contains(source)) {
+            if(!sources.contains(sourceHashCode)) {
                 count++;
-                sources.add(source);
+                sources.add(sourceHashCode);
             }
             //instances.put(count, 1);
             return count;

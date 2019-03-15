@@ -7,6 +7,8 @@ import Infra.RelationshipEdge;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.rdf.model.*;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -18,7 +20,11 @@ public class DBPediaDataGraph extends DataGraphBase {
         super();
         loadNodeMap(nodeTypesFilePath);
         addAllVertex();
-        loadGraph(dataGraphFilePath);
+        try {
+            loadGraph(dataGraphFilePath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -76,7 +82,7 @@ public class DBPediaDataGraph extends DataGraphBase {
 
     }
 
-    private void loadGraph(String dataGraphFilePath) {
+    private void loadGraph(String dataGraphFilePath) throws FileNotFoundException {
 
         if (dataGraphFilePath == null || dataGraphFilePath.length() == 0) {
             System.out.println("No Input Graph Data File Path!");
@@ -86,9 +92,11 @@ public class DBPediaDataGraph extends DataGraphBase {
         Model model = ModelFactory.createDefaultModel();
         System.out.println("Loading DBPedia Graph...");
 
+        model.read(dataGraphFilePath);
         //MorteZa
-        Path input= Paths.get(dataGraphFilePath);
-        model.read(input.toUri().toString());
+        //Path input= Paths.get(dataGraphFilePath);
+        //model.read(input.toUri().toString());
+        //model.read(new FileInputStream(dataGraphFilePath),null,"TTL");
         //MorteZa
 
         StmtIterator dataTriples = model.listStatements();

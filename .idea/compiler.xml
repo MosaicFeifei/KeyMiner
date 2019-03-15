@@ -6,11 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="KeyMiner" />
         <module name="miner" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="KeyMiner" target="7" />
-    </bytecodeTargetLevel>
   </component>
 </project>

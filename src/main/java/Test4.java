@@ -10,12 +10,12 @@ public class Test4 {
         System.out.println("Test4");
         //DBPediaOntologyGraph oGraph = new DBPediaOntologyGraph(args[0]);
 
-
+        String name="University";
         DBPediaDataGraph graph = new DBPediaDataGraph(
-                "C:\\MorteZa\\KeyMiner Source Code\\Dataset\\types.nt"
-                , "C:\\MorteZa\\KeyMiner Source Code\\Dataset\\test.ttl");
+                "F:\\MorteZa\\Datasets\\Vicky\\datasets\\Merged\\Merged_Types_"+name+".ttl"
+                , "F:\\MorteZa\\Datasets\\Vicky\\datasets\\Merged\\Merged_"+name+".ttl");
 
-        summarizeGraph sum=new summarizeGraph(graph,0.5);
+        summarizeGraph sum=new summarizeGraph(graph,0.3, "F:\\MorteZa\\Datasets\\Vicky\\datasets\\Merged\\Keys_"+name+".txt");
 
 
         //myTools.save(args[4], args[5], args[6]);
